@@ -17,7 +17,7 @@ export default class PostTop_home extends Component {
         offset: 0,
         tableData: [],
         orgtableData: [],
-        perPage: 6,
+        perPage: 3,
         currentPage: 0,
         country:[1],
         isFull:false,
