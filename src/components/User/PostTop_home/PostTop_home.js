@@ -17,20 +17,22 @@ export default class PostTop_home extends Component {
         offset: 0,
         tableData: [],
         orgtableData: [],
-        perPage: 3,
+        perPage: 6,
         currentPage: 0,
-        country:[1]
+        country:[1],
+        isFull:false,
+        isPar:false,
+       
        
     }
     this.handlePageClick = this.handlePageClick.bind(this);
     this.submit = this.submit.bind(this);
+    this.onChangePart = this.onChangePart.bind(this);
+    this.onChangeFul = this.onChangeFul.bind(this);
+
+
 }
 
-submit(e){
-  e.preventDefault()
-  {this.handleChange(e)};
-  console.log("sss",this.state.country);
-}
 
 handlePageClick = (e) => {
     const selectedPage = e.selected;
@@ -51,7 +53,8 @@ const data = this.state.orgtableData;
 const slice = data.slice(this.state.offset, this.state.offset + this.state.perPage)
 this.setState({
   pageCount: Math.ceil(data.length / this.state.perPage),
-  tableData:slice
+  tableData:slice,
+  
 })
 
 }
@@ -60,13 +63,14 @@ componentDidMount(){
     this.getData();
     this.getProvince();
 
+
 }
 
 
   renderTinh = () => {
   
     return this.state.country.map((tenTinh, index) => {
-      return <option>{tenTinh.province_name}</option>;
+      return <option style={{width: "150px"}}>{tenTinh.province_name}</option>;
     });
   };
 
@@ -76,15 +80,12 @@ componentDidMount(){
         .then(res => {
          
           var data = res.data;
-          
-          
           var slice = data.slice(this.state.offset, this.state.offset + this.state.perPage)
-          
-
           this.setState({
               pageCount: Math.ceil(data.length / this.state.perPage),
               orgtableData :res.data,
-              tableData:slice
+              tableData:slice,
+              tablee:data
           })
       });
 }
@@ -150,31 +151,95 @@ getProvince() {
     })
   }
 
-  handleChange = (e) => {
-    // to find out if it's checked or not; returns true or false
-    const checked = e.target.checked;
-    console.log(checked)
-    // to get the checked value
-    const checkedValue = e.target.value;
-    console.log(checkedValue)
-    // to get the checked name
-    const checkedName = e.target.name;
-    console.log(checkedName)
+  submit(e){
+    e.preventDefault()
+    console.log(this.state.isFull,this.state.isPar);
+    axios
+    .get(`https://mocki.io/v1/89c66305-500b-422d-a339-58790b7491bc`)
+    .then(res => {
+     
+      var data = res.data;
+      var search;
+    
+  
+   console.log("Aaa",e.target.name  )
+  
 
-
-    if(e.target.name ==='vehicle1' && e.target.value==='something2'){
+    if(this.state.isFull){
+  
+      search=data.filter(filter => {
+       return filter.hinhThuc === 'Full Time'})
+       console.log("fullsssssssssssss",search)
+      var slice = search.slice(this.state.offset, this.state.offset + this.state.perPage)
       this.setState({
-        offset: 0,
-        tableData: [],
-        orgtableData: [],
-        perPage: 3,
-        currentPage: 0
-      });
-    }else{{this.getData()}
-    {this.renderPost()}
+          pageCount: Math.ceil(search.length / this.state.perPage),
+          orgtableData :search,
+          tableData:slice,
+
+          offset: 0,
+          currentPage: 0,
+          
+      })
+  
+    }else if(this.state.isPar){
+  
+        search=data.filter(filter => {
+         return filter.hinhThuc === 'Part Time'})
+         console.log("part",search)
+        var slice = search.slice(this.state.offset, this.state.offset + this.state.perPage)
+        this.setState({
+            pageCount: Math.ceil(search.length / this.state.perPage),
+            orgtableData :search,
+            tableData:slice,
+
+         
+            
+        })
+    }else{
+  
+      var slice = data.slice(this.state.offset, this.state.offset + this.state.perPage)
+      this.setState({
+          pageCount: Math.ceil(data.length / this.state.perPage),
+          orgtableData :res.data,
+          tableData:slice
+        })
     }
- 
-    };
+  
+  
+  })
+  
+  
+  
+  
+  
+  /* if({tableData:this.state.tableData.map(filter => filter.hinhThuc=="Full Time")})
+  {
+    this.setState({tableData:this.state.tableData.map(filter => filter.value)});
+  }*/
+  
+  }
+   
+  
+  /* 
+  submit(e){
+    e.preventDefault()
+    {this.handleChange(e)};
+    console.log("sss",this.state.country);
+  } */
+   
+
+  onChangeFul = () => {
+    this.setState(initialState => ({
+      isFull: !initialState.isFull,
+    }));
+  }
+
+  onChangePart = () => {
+    this.setState(initialState => ({
+      isPar: !initialState.isPar,
+    }));
+  }
+
 
 
   render() {
@@ -183,7 +248,7 @@ getProvince() {
       <div className="container-fluid">
         <div className="row  w-100 pb-3">
           <div className="col-2 text-center border border-right-0 filter" style={{ width: "300%" }}>
-             <form  style={{ paddingTop: "10%" ,marginTop:'80px' }} className='border'>
+             <form  onSubmit={this.submit}  style={{ paddingTop: "10%" ,marginTop:'80px' }} className='border'>
                   <div style={{ width: "500%" }}>
                 <div className="form-check-inline ">
                   <label className="form-check-label" htmlFor="check1">
@@ -191,8 +256,11 @@ getProvince() {
                       type="checkbox"
                       className="form-check-input"
                       id="check1"
-                      name="vehicle1"
-                      onChange={this.handleChange}
+                      name="isFull"
+                      checked={this.state.isFull}
+                      onChange={this.onChangeFul}
+
+                 
                       defaultValue="something1"
                       comingsoon="false"
                     />
@@ -205,8 +273,9 @@ getProvince() {
                       type="checkbox"
                       className="form-check-input"
                       id="check2"
-                      name="vehicle2"
-                      onChange={this.handleChange}
+                      name="isPar"
+                      checked={this.state.isPar}
+                      onChange={this.onChangePart}
                       defaultValue="something2"
                     />
                     Part Time
@@ -224,7 +293,7 @@ getProvince() {
                 </select>
               </div>
 
-              <button className="btn btn-primary" onClick={this.submit}>
+              <button  type="submit" className="btn btn-primary"  >
                 Tìm kiếm
               </button>
               
@@ -269,5 +338,8 @@ getProvince() {
       </div>
     );
   }
-}
+
+ }
+
+
 
