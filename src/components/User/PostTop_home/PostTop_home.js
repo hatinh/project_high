@@ -19,7 +19,8 @@ export default class PostTop_home extends Component {
         orgtableData: [],
         perPage: 3,
         currentPage: 0,
-        country:[1],
+        country:[],
+        aWard:[],
         isFull:false,
         isPar:false,
        
@@ -62,6 +63,7 @@ this.setState({
 componentDidMount(){
     this.getData();
     this.getProvince();
+    this.getAwardEmp();
 
 
 }
@@ -85,7 +87,7 @@ componentDidMount(){
               pageCount: Math.ceil(data.length / this.state.perPage),
               orgtableData :res.data,
               tableData:slice,
-              tablee:data
+              
           })
       });
 }
@@ -95,18 +97,33 @@ getProvince() {
   axios
       .get(`https://vapi.vnappmob.com/api/province`)
       .then(res => {
-       
+      
         var data = res.data.results;
+    
         this.setState({
           country:data
         })
     });
 }
 
+getAwardEmp() {
+  axios
+      .get(`https://mocki.io/v1/d58c1e96-a19c-4b30-9bdb-49a51ddd4a2a`)
+      .then(res => {
+        var data = res.data;
+     
+        this.setState({
+          aWard:data
+        })
+    });
+}
+
+
   renderPost = () =>{
     return this.state.tableData.map((post,index) => { 
+
       return (
-      
+   
         <div className="media border p-1 mt-1 mb-1" key={index}>
           <div className="media-body">
             <h5  style={{color:'#203181'}}>{post.tenChuNha} | <span class="badge badge-light"> Hình thức:{post.hinhThuc}</span> | <span class="badge badge-light"> Lương: {post.salary}</span>  <span class="badge badge-info" >{post.diaChi}</span> </h5>
@@ -126,8 +143,15 @@ getProvince() {
   } 
 
   renderTop5 = () => {
-    return top5.map((top,index) => {
+
+    return this.state.aWard.map((top,index) => {
+     var start= top.diemDanhGia;
+     var indents = [];
+for (var i = 0; i < start; i++) {
+  indents.push( <i className="fa fa-star" style={{color:'#ffc800'}}></i>);
+}
       return (
+        
         <div className="media border p-1  mt-1 mb-1" key={index}>
         <div className="media-body">
           <h5  style={{color:'#203181'}}> {top.tenUngVien} | <span className="badge badge-light"> {top.tuoi} Tuổi </span>  </h5>
@@ -136,12 +160,10 @@ getProvince() {
              <span className="badge badge-light ml-3"> Lượt thuê:{top.luotThue}</span>
               <br/>
               <br/>
+
                <div className='row pl-3 pt-2 '>
-                    <i className="fa fa-star" style={{color:'#ffc800'}}></i>
-                    <i className="fa fa-star" style={{color:'#ffc800'}}></i>
-                    <i className="fa fa-star" style={{color:'#ffc800'}}></i>
-                    <i className="fa fa-star" style={{color:'#ffc800'}}></i>
-                    <i className="fa fa-star" style={{color:'#ffc800'}}></i>
+               {indents}
+                             
                <div type="button" className={style.buttonPT} > <i class="fa fa-arrow-right"></i> Tuyển dụng</div>
                </div>
         </div>
@@ -162,10 +184,14 @@ getProvince() {
       var search;
     
   
-   console.log("Aaa",e.target.name  )
+      console.log(this.state.country);
   
 
-    if(this.state.isFull){
+  
+  
+  
+  
+   if(this.state.isFull && !this.state.isPar){
   
       search=data.filter(filter => {
        return filter.hinhThuc === 'Full Time'})
@@ -176,12 +202,10 @@ getProvince() {
           orgtableData :search,
           tableData:slice,
 
-          offset: 0,
-          currentPage: 0,
           
       })
   
-    }else if(this.state.isPar){
+    }else if(this.state.isPar && !this.state.isFull){
   
         search=data.filter(filter => {
          return filter.hinhThuc === 'Part Time'})
@@ -192,8 +216,7 @@ getProvince() {
             orgtableData :search,
             tableData:slice,
 
-         
-            
+                     
         })
     }else{
   
