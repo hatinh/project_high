@@ -123,18 +123,21 @@ export default class Login extends Component {
             <Input
                 type="text"
                 name="username"
+                placeholder="Tên Đăng Nhập"
                 value={this.state.username}
                 onChange={this.onChangeUsername}
                 validations={[requiredUserName]}
               />
+             
           </div>
           <div className="gc"></div>
           <div className="input-field">
             <i className="fas fa-lock" />
             <Input
-                 className="pt-3"
+                 className="pt-2"
                 type="password"
                 name="password"
+                placeholder="Mật khẩu"
                 value={this.state.password}
                 onChange={this.onChangePassword}
                 validations={[requiredPassword]}
