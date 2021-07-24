@@ -21,8 +21,9 @@ export default class PostTop_home extends Component {
         currentPage: 0,
         country:[],
         aWard:[],
-        isFull:false,
-        isPar:false,
+        isFull:true,
+        isPar:true,
+        selectValue: "Thành phố Cần Thơ"
        
        
     }
@@ -30,12 +31,20 @@ export default class PostTop_home extends Component {
     this.submit = this.submit.bind(this);
     this.onChangePart = this.onChangePart.bind(this);
     this.onChangeFul = this.onChangeFul.bind(this);
+    this.handleDropdownChange = this.handleDropdownChange.bind(this);
 
 
 }
 
+handleDropdownChange(e) {
+
+
+  this.setState({ selectValue: e.target.value });
+  console.log(this.state.selectValue)
+}
 
 handlePageClick = (e) => {
+
     const selectedPage = e.selected;
     const offset = selectedPage * this.state.perPage;
 
@@ -78,7 +87,7 @@ componentDidMount(){
 
   getData() {
     axios
-        .get(`https://mocki.io/v1/89c66305-500b-422d-a339-58790b7491bc`)
+        .get(`https://mocki.io/v1/fa93f59a-2be6-48fb-8c83-a93719bd2191`)
         .then(res => {
          
           var data = res.data;
@@ -102,6 +111,7 @@ getProvince() {
     
         this.setState({
           country:data
+
         })
     });
 }
@@ -126,7 +136,7 @@ getAwardEmp() {
    
         <div className="media border p-1 mt-1 mb-1" key={index}>
           <div className="media-body">
-            <h5  style={{color:'#203181'}}>{post.tenChuNha} | <span class="badge badge-light"> Hình thức:{post.hinhThuc}</span> | <span class="badge badge-light"> Lương: {post.salary}</span>  <span class="badge badge-info" >{post.diaChi}</span> </h5>
+            <h5  style={{color:'#203181'}}>{post.tenChuNha} | <span className="badge badge-light"> Hình thức:{post.hinhThuc}</span> | <span className="badge badge-light"> Lương: {post.salary}</span>  <span className="badge badge-info" >{post.diaChi}</span> </h5>
             <p className='text-break' style={{fontSize:'15px'}}> <b>Nội dung:</b> {post.Content.substr(0,190)} <a className='text-primary ' style={{textDecoration:'none' ,cursor:'pointer'}}>  Xem thêm...</a></p>
             <small style={{paddingRight:'60px'}}><i className='text-secondary'>Được đăng lúc:{post.timePost}</i></small>
           </div>
@@ -164,7 +174,7 @@ for (var i = 0; i < start; i++) {
                <div className='row pl-3 pt-2 '>
                {indents}
                              
-               <div type="button" className={style.buttonPT} > <i class="fa fa-arrow-right"></i> Tuyển dụng</div>
+               <div type="button" className={style.buttonPT} > <i className="fa fa-arrow-right"></i> Tuyển dụng</div>
                </div>
         </div>
         <img src='https://toplist.vn/images/800px/kamiwedding-316252.jpg' alt="true" className="ml-2 mt-3 rounded-circle" style={{width:'70px',height:'80px'}} />
@@ -177,22 +187,30 @@ for (var i = 0; i < start; i++) {
     e.preventDefault()
     console.log(this.state.isFull,this.state.isPar);
     axios
-    .get(`https://mocki.io/v1/89c66305-500b-422d-a339-58790b7491bc`)
+    .get(`https://mocki.io/v1/fa93f59a-2be6-48fb-8c83-a93719bd2191`)
     .then(res => {
      
       var data = res.data;
+      var found;
       var search;
     
   
-      console.log(this.state.country);
-  
+
 
   
-  
-  
-  
    if(this.state.isFull && !this.state.isPar){
-  
+    if(this.state.selectValue != null){
+      found = data.filter(element =>{return element.Tinh === this.state.selectValue && element.hinhThuc === 'Full Time' })
+     console.log("found",found)
+     var slice = found.slice(this.state.offset, this.state.offset + this.state.perPage)
+       this.setState({
+           pageCount: Math.ceil(found.length / this.state.perPage),
+           orgtableData :found,
+           tableData:slice
+         })
+
+   }else{
+      
       search=data.filter(filter => {
        return filter.hinhThuc === 'Full Time'})
        console.log("fullsssssssssssss",search)
@@ -204,9 +222,21 @@ for (var i = 0; i < start; i++) {
 
           
       })
-  
+    }
     }else if(this.state.isPar && !this.state.isFull){
   
+      if(this.state.selectValue != null){
+        found = data.filter(element =>{return element.Tinh === this.state.selectValue && element.hinhThuc === 'Part Time'})
+       console.log("found",found)
+       var slice = found.slice(this.state.offset, this.state.offset + this.state.perPage)
+         this.setState({
+             pageCount: Math.ceil(found.length / this.state.perPage),
+             orgtableData :found,
+             tableData:slice
+           })
+ 
+     }else{
+
         search=data.filter(filter => {
          return filter.hinhThuc === 'Part Time'})
          console.log("part",search)
@@ -215,20 +245,40 @@ for (var i = 0; i < start; i++) {
             pageCount: Math.ceil(search.length / this.state.perPage),
             orgtableData :search,
             tableData:slice,
-
+        
                      
-        })
+        })}
+
+    }else if(this.state.isPar && this.state.isFull){
+       console.log("cuoi")
+      if(this.state.selectValue != null){
+       found = data.filter(element =>{return element.Tinh === this.state.selectValue})
+      console.log("found",found)
+      var slice = found.slice(this.state.offset, this.state.offset + this.state.perPage)
+        this.setState({
+            pageCount: Math.ceil(found.length / this.state.perPage),
+            orgtableData :found,
+            tableData:slice
+          })
+
     }else{
+
+   
+        var slice = data.slice(this.state.offset, this.state.offset + this.state.perPage)
+        this.setState({
+            pageCount: Math.ceil(data.length / this.state.perPage),
+            orgtableData :res.data,
+            tableData:slice
+          })
+    
+        }
+
+        
   
-      var slice = data.slice(this.state.offset, this.state.offset + this.state.perPage)
-      this.setState({
-          pageCount: Math.ceil(data.length / this.state.perPage),
-          orgtableData :res.data,
-          tableData:slice
-        })
+    
     }
   
-  
+    console.log("data",this.state.orgtableData);
   })
   
   
@@ -286,6 +336,7 @@ for (var i = 0; i < start; i++) {
                  
                       defaultValue="something1"
                       comingsoon="false"
+                      value="1"
                     />
                     Full Time
                   </label>
@@ -300,6 +351,7 @@ for (var i = 0; i < start; i++) {
                       checked={this.state.isPar}
                       onChange={this.onChangePart}
                       defaultValue="something2"
+                      value="1"
                     />
                     Part Time
                   </label>
@@ -310,7 +362,7 @@ for (var i = 0; i < start; i++) {
             
               <div style={{ width: "250%", padding: "20px 0 20px 0" }}>
                 <label htmlFor="sel1">Tỉnh thành:</label> 
-                <select className="form-control " id="sel1" name="sellist1" >
+                <select className="form-control " id="sel1" name="sellist1" onChange={this.handleDropdownChange}>
                   <option>Chọn tỉnh :</option>
                   {this.renderTinh()}
                 </select>
