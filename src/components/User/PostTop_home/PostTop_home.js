@@ -17,15 +17,15 @@ export default class PostTop_home extends Component {
         offset: 0,
         tableData: [],
         orgtableData: [],
-        perPage: 3,
+        perPage: 6,
         currentPage: 0,
         country:[],
         aWard:[],
         isFull:true,
         isPar:true,
-        selectValue: "Thành phố Cần Thơ"
-       
-       
+        selectValue: ""
+
+        
     }
     this.handlePageClick = this.handlePageClick.bind(this);
     this.submit = this.submit.bind(this);
@@ -45,7 +45,7 @@ handleDropdownChange(e) {
 
 handlePageClick = (e) => {
 
-    const selectedPage = e.selected;
+    const selectedPage =e.selected;
     const offset = selectedPage * this.state.perPage;
 
     this.setState({
@@ -73,7 +73,6 @@ componentDidMount(){
     this.getData();
     this.getProvince();
     this.getAwardEmp();
-
 
 }
 
@@ -171,12 +170,16 @@ for (var i = 0; i < start; i++) {
               <br/>
               <br/>
 
-               <div className='row pl-3 pt-2 '>
+
+               <div className='row pl-3 pt-2 col-5'>
                {indents}
+               
                              
-               <div type="button" className={style.buttonPT} > <i className="fa fa-arrow-right"></i> Tuyển dụng</div>
+               <div type="button" className={style.buttonPT} > <i className="fa fa-arrow-right col-2"></i> Tuyển dụng</div>
                </div>
-        </div>
+
+               </div>
+   
         <img src='https://toplist.vn/images/800px/kamiwedding-316252.jpg' alt="true" className="ml-2 mt-3 rounded-circle" style={{width:'70px',height:'80px'}} />
    </div>
       )
@@ -185,7 +188,11 @@ for (var i = 0; i < start; i++) {
 
   submit(e){
     e.preventDefault()
-    console.log(this.state.isFull,this.state.isPar);
+    console.log(this.state.isFull,this.state.isPar);   
+
+  
+
+console.log("currentrpage" ,this.state.currentPage)
     axios
     .get(`https://mocki.io/v1/fa93f59a-2be6-48fb-8c83-a93719bd2191`)
     .then(res => {
@@ -193,11 +200,7 @@ for (var i = 0; i < start; i++) {
       var data = res.data;
       var found;
       var search;
-    
-  
 
-
-  
    if(this.state.isFull && !this.state.isPar){
     if(this.state.selectValue != null){
       found = data.filter(element =>{return element.Tinh === this.state.selectValue && element.hinhThuc === 'Full Time' })
@@ -250,8 +253,9 @@ for (var i = 0; i < start; i++) {
         })}
 
     }else if(this.state.isPar && this.state.isFull){
-       console.log("cuoi")
-      if(this.state.selectValue != null){
+       console.log("cuoizzzzz")
+      if(this.state.selectValue != ""){
+        console.log("ss",this.state.selectValue)
        found = data.filter(element =>{return element.Tinh === this.state.selectValue})
       console.log("found",found)
       var slice = found.slice(this.state.offset, this.state.offset + this.state.perPage)
@@ -260,10 +264,30 @@ for (var i = 0; i < start; i++) {
             orgtableData :found,
             tableData:slice
           })
+        }
+        else{
+          console.log("hehehehheh")
+          console.log(data)
+          this.handlePageClick();
+          var slice = data.slice(this.state.offset, this.state.offset + this.state.perPage)
+          this.setState({
+              pageCount: Math.ceil(data.length / this.state.perPage),
+              orgtableData :data,
+              tableData:slice
+            })}
+    }else if(!this.state.isPar && !this.state.isFull){
 
-    }else{
-
-   
+      if(this.state.selectValue != null){
+        found = data.filter(element =>{return element.Tinh === this.state.selectValue})
+       console.log("123",found)
+       var slice = found.slice(this.state.offset, this.state.offset + this.state.perPage)
+         this.setState({
+             pageCount: Math.ceil(found.length / this.state.perPage),
+             orgtableData :found,
+             tableData:slice
+           })
+          }
+else{
         var slice = data.slice(this.state.offset, this.state.offset + this.state.perPage)
         this.setState({
             pageCount: Math.ceil(data.length / this.state.perPage),
@@ -272,12 +296,8 @@ for (var i = 0; i < start; i++) {
           })
     
         }
-
-        
-  
-    
-    }
-  
+      }      
+      console.log("currenrpaeg",this.state.currentPage);
     console.log("data",this.state.orgtableData);
   })
   
@@ -363,7 +383,7 @@ for (var i = 0; i < start; i++) {
               <div style={{ width: "250%", padding: "20px 0 20px 0" }}>
                 <label htmlFor="sel1">Tỉnh thành:</label> 
                 <select className="form-control " id="sel1" name="sellist1" onChange={this.handleDropdownChange}>
-                  <option>Chọn tỉnh :</option>
+                  <option selected hidden>Chọn tỉnh :</option>
                   {this.renderTinh()}
                 </select>
               </div>
@@ -383,7 +403,17 @@ for (var i = 0; i < start; i++) {
           <h2 className="p-3 text-center" style={{color:'#203181'}} >TOP BÀI ĐĂNG MỚI NHẤT</h2>
               {this.renderPost()}
 
-              <ReactPaginate
+            
+         
+          </div>
+          
+          <div className="col-3 border">
+             <h4 className="p-3 mb-4 text-center" style={{color:'#203181'}} >TOP 5 ỨNG VIÊN XUẤT SẮC</h4>
+             {this.renderTop5()}
+            
+          </div>
+          <div>
+          <ReactPaginate
       previousLabel={"prev"}
       nextLabel={"next"}
       breakLabel={"..."}
@@ -395,19 +425,6 @@ for (var i = 0; i < start; i++) {
       containerClassName={"pagination"}
       subContainerClassName={"pages pagination"}
       activeClassName={"active"}/>
-           {/*    <ul class="pagination justify-content-center pt-3" >
-                  <li class="page-item"><a class="page-link" href="javascript:void(0);">Previous</a></li>
-                  <li class="page-item"><a class="page-link" href="javascript:void(0);">1</a></li>
-                  <li class="page-item"><a class="page-link" href="javascript:void(0);">2</a></li>
-                  <li class="page-item"><a class="page-link" href="javascript:void(0);">3</a></li>
-                  <li class="page-item"><a class="page-link" href="javascript:void(0);">4</a></li>
-                  <li class="page-item"><a class="page-link" href="javascript:void(0);">Next</a></li>
-               </ul> */}
-          </div>
-          <div className="col-3 border">
-             <h4 className="p-3 mb-4 text-center" style={{color:'#203181'}} >TOP 5 ỨNG VIÊN XUẤT SẮC</h4>
-             {this.renderTop5()}
-            
           </div>
         </div>
       </div>
